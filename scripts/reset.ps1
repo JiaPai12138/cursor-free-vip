@@ -14,10 +14,10 @@ $Theme = @{
 
 # ASCII Logo
 $Logo = @"
-██████╗ ███████╗███████╗███████╗████████╗    ████████╗ ██████╗  ██████╗ ██╗     
-██╔══██╗██╔════╝██╔════╝██╔════╝╚══██╔══╝    ╚══██╔══╝██╔═══██╗██╔═══██╗██║     
-██████╔╝█████╗  ███████╗█████╗     ██║          ██║   ██║   ██║██║   ██║██║     
-██╔══██╗██╔══╝  ╚════██║██╔══╝     ██║          ██║   ██║   ██║██║   ██║██║     
+██████╗ ███████╗███████╗███████╗████████╗    ████████╗ ██████╗  ██████╗ ██╗
+██╔══██╗██╔════╝██╔════╝██╔════╝╚══██╔══╝    ╚══██╔══╝██╔═══██╗██╔═══██╗██║
+██████╔╝█████╗  ███████╗█████╗     ██║          ██║   ██║   ██║██║   ██║██║
+██╔══██╗██╔══╝  ╚════██║██╔══╝     ██║          ██║   ██║   ██║██║   ██║██║
 ██║  ██║███████╗███████║███████╗   ██║          ██║   ╚██████╔╝╚██████╔╝███████╗
 ╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝   ╚═╝          ╚═╝    ╚═════╝  ╚═════╝ ╚══════╝
 "@
@@ -36,7 +36,7 @@ function Write-Styled {
         $Theme.Warning { "⚠️" }
         default        { "ℹ️" }
     }
-    
+
     $output = if ($Prefix) { "$emoji $Prefix :: $Message" } else { "$emoji $Message" }
     if ($NoNewline) {
         Write-Host $output -ForegroundColor $Color -NoNewline
@@ -50,21 +50,21 @@ $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIden
 if (-NOT $isAdmin) {
     Write-Styled "需要管理員權限來運行重置工具" -Color $Theme.Warning -Prefix "權限"
     Write-Styled "正在請求管理員權限..." -Color $Theme.Primary -Prefix "提升"
-    
+
     # 顯示操作選項
     Write-Host "`n選擇操作:" -ForegroundColor $Theme.Primary
     Write-Host "1. 請求管理員權限" -ForegroundColor $Theme.Info
     Write-Host "2. 退出程序" -ForegroundColor $Theme.Info
-    
+
     $choice = Read-Host "`n請輸入選項 (1-2)"
-    
+
     if ($choice -ne "1") {
         Write-Styled "操作已取消" -Color $Theme.Warning -Prefix "取消"
         Write-Host "`n按任意鍵退出..." -ForegroundColor $Theme.Info
         $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
         exit
     }
-    
+
     try {
         Start-Process powershell.exe -Verb RunAs -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`" -Elevated"
         exit
@@ -85,7 +85,7 @@ if ($Elevated) {
 
 # 顯示 Logo
 Write-Host $Logo -ForegroundColor $Theme.Primary
-Write-Host "Created by YeongPin`n" -ForegroundColor $Theme.Info
+Write-Host "Created by jiapai12138`n" -ForegroundColor $Theme.Info
 
 # 設置 TLS 1.2
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
@@ -103,7 +103,7 @@ function Cleanup {
 
 try {
     # 下載地址
-    $url = "https://github.com/yeongpin/cursor-free-vip/releases/download/ManualReset/reset_machine_manual.exe"
+    $url = "https://github.com/jiapai12138/cursor-free-vip/releases/download/ManualReset/reset_machine_manual.exe"
     $output = Join-Path $TmpDir "reset_machine_manual.exe"
 
     # 下載文件
@@ -124,4 +124,4 @@ finally {
     Cleanup
     Write-Host "`n按任意鍵退出..." -ForegroundColor $Theme.Info
     $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
-} 
+}

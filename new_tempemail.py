@@ -16,11 +16,11 @@ class NewTempEmail:
         self.translator = translator
         self.page = None
         self.setup_browser()
-        
+
     def get_blocked_domains(self):
         """Get blocked domains list"""
         try:
-            block_url = "https://raw.githubusercontent.com/yeongpin/cursor-free-vip/main/block_domain.txt"
+            block_url = "https://raw.githubusercontent.com/jiapai12138/cursor-free-vip/main/block_domain.txt"
             response = requests.get(block_url, timeout=5)
             if response.status_code == 200:
                 # Split text and remove empty lines
@@ -37,7 +37,7 @@ class NewTempEmail:
             else:
                 print(f"{Fore.YELLOW}⚠️ 获取被屏蔽域名列表失败: {str(e)}{Style.RESET_ALL}")
             return self._load_local_blocked_domains()
-            
+
     def _load_local_blocked_domains(self):
         """Load blocked domains from local file as fallback"""
         try:
@@ -62,32 +62,32 @@ class NewTempEmail:
             else:
                 print(f"{Fore.YELLOW}⚠️ 读取本地被屏蔽域名文件失败: {str(e)}{Style.RESET_ALL}")
             return []
-    
+
     def exclude_blocked_domains(self, domains):
         """Exclude blocked domains"""
         if not self.blocked_domains:
             return domains
-            
+
         filtered_domains = []
         for domain in domains:
             if domain['domain'] not in self.blocked_domains:
                 filtered_domains.append(domain)
-                
+
         excluded_count = len(domains) - len(filtered_domains)
         if excluded_count > 0:
             if self.translator:
                 print(f"{Fore.YELLOW}⚠️ {self.translator.get('email.domains_excluded', domains=excluded_count)}{Style.RESET_ALL}")
             else:
                 print(f"{Fore.YELLOW}⚠️ 已排除 {excluded_count} 个被屏蔽的域名{Style.RESET_ALL}")
-                
+
         return filtered_domains
-        
-        
+
+
     def get_extension_block(self):
         """获取插件路径"""
         root_dir = os.getcwd()
         extension_path = os.path.join(root_dir, "PBlock")
-        
+
         if hasattr(sys, "_MEIPASS"):
             extension_path = os.path.join(sys._MEIPASS, "PBlock")
 
@@ -95,7 +95,7 @@ class NewTempEmail:
             raise FileNotFoundError(f"插件不存在: {extension_path}")
 
         return extension_path
-        
+
     def setup_browser(self):
         """设置浏览器"""
         try:
@@ -103,10 +103,10 @@ class NewTempEmail:
                 print(f"{Fore.CYAN}ℹ️ {self.translator.get('email.starting_browser')}{Style.RESET_ALL}")
             else:
                 print(f"{Fore.CYAN}ℹ️ 正在启动浏览器...{Style.RESET_ALL}")
-            
+
             # 创建浏览器选项
             co = ChromiumOptions()
-            
+
             # Only use headless for non-OAuth operations
             if not hasattr(self, 'auth_type') or self.auth_type != 'oauth':
                 co.set_argument("--headless=new")
@@ -117,11 +117,11 @@ class NewTempEmail:
                     print(f"{Fore.RED}❌ {self.translator.get('email.no_display_found') if self.translator else 'No display found. Make sure X server is running.'}{Style.RESET_ALL}")
                     print(f"{Fore.YELLOW}ℹ️ {self.translator.get('email.try_export_display') if self.translator else 'Try: export DISPLAY=:0'}{Style.RESET_ALL}")
                     return False
-                    
+
                 co.set_argument("--no-sandbox")
                 co.set_argument("--disable-dev-shm-usage")
                 co.set_argument("--disable-gpu")
-                
+
                 # If running as root, try to use actual user's Chrome profile
                 if os.geteuid() == 0:
                     sudo_user = os.environ.get('SUDO_USER')
@@ -131,9 +131,9 @@ class NewTempEmail:
                         if os.path.exists(user_data_dir):
                             print(f"{Fore.CYAN}ℹ️ {self.translator.get('email.using_chrome_profile', user_data_dir=user_data_dir) if self.translator else f'Using Chrome profile from: {user_data_dir}'}{Style.RESET_ALL}")
                             co.set_argument(f"--user-data-dir={user_data_dir}")
-            
+
             co.auto_port()  # 自动设置端口
-            
+
             # 加载 uBlock 插件
             try:
                 extension_path = self.get_extension_block()
@@ -144,7 +144,7 @@ class NewTempEmail:
                     print(f"{Fore.YELLOW}⚠️ {self.translator.get('email.extension_load_error')}: {str(e)}{Style.RESET_ALL}")
                 else:
                     print(f"{Fore.YELLOW}⚠️ 加载插件失败: {str(e)}{Style.RESET_ALL}")
-            
+
             self.page = ChromiumPage(co)
             return True
         except Exception as e:
@@ -152,12 +152,12 @@ class NewTempEmail:
                 print(f"{Fore.RED}❌ {self.translator.get('email.browser_start_error')}: {str(e)}{Style.RESET_ALL}")
             else:
                 print(f"{Fore.RED}❌ 启动浏览器失败: {str(e)}{Style.RESET_ALL}")
-            
+
             if sys.platform == "linux":
                 print(f"{Fore.YELLOW}ℹ️ {self.translator.get('email.make_sure_chrome_chromium_is_properly_installed') if self.translator else 'Make sure Chrome/Chromium is properly installed'}{Style.RESET_ALL}")
                 print(f"{Fore.YELLOW}ℹ️ {self.translator.get('email.try_install_chromium') if self.translator else 'Try: sudo apt install chromium-browser'}{Style.RESET_ALL}")
             return False
-            
+
     def create_email(self):
         """create temporary email"""
         try:
@@ -165,26 +165,26 @@ class NewTempEmail:
                 print(f"{Fore.CYAN}ℹ️ {self.translator.get('email.visiting_site')}{Style.RESET_ALL}")
             else:
                 print(f"{Fore.CYAN}ℹ️ 正在访问 smailpro.com...{Style.RESET_ALL}")
-            
+
             # load blocked domains list
             self.blocked_domains = self.get_blocked_domains()
-            
+
             # visit website
             self.page.get("https://smailpro.com/")
             time.sleep(2)
-            
+
             # click create email button
             create_button = self.page.ele('xpath://button[@title="Create temporary email"]')
             if create_button:
                 create_button.click()
                 time.sleep(1)
-                
+
                 # click Create button in popup
                 modal_create_button = self.page.ele('xpath://button[contains(text(), "Create")]')
                 if modal_create_button:
                     modal_create_button.click()
                     time.sleep(2)
-                    
+
                     # get email address - modify selector
                     email_div = self.page.ele('xpath://div[@class="text-base sm:text-lg md:text-xl text-gray-700"]')
                     if email_div:
@@ -199,7 +199,7 @@ class NewTempEmail:
                                     print(f"{Fore.YELLOW}⚠️ 域名已被屏蔽: {domain}，尝试重新创建邮箱{Style.RESET_ALL}")
                                 # create email again
                                 return self.create_email()
-                            
+
                             if self.translator:
                                 print(f"{Fore.GREEN}✅ {self.translator.get('email.create_success')}: {email}{Style.RESET_ALL}")
                             else:
@@ -210,14 +210,14 @@ class NewTempEmail:
             else:
                 print(f"{Fore.RED}❌ 创建邮箱失败{Style.RESET_ALL}")
             return None
-            
+
         except Exception as e:
             if self.translator:
                 print(f"{Fore.RED}❌ {self.translator.get('email.create_error')}: {str(e)}{Style.RESET_ALL}")
             else:
                 print(f"{Fore.RED}❌ 创建邮箱出错: {str(e)}{Style.RESET_ALL}")
             return None
-            
+
     def close(self):
         """close browser"""
         if self.page:
@@ -230,7 +230,7 @@ class NewTempEmail:
                 print(f"{Fore.CYAN}🔄 {self.translator.get('email.refreshing')}{Style.RESET_ALL}")
             else:
                 print(f"{Fore.CYAN}🔄 正在刷新邮箱...{Style.RESET_ALL}")
-            
+
             # click refresh button
             refresh_button = self.page.ele('xpath://button[@id="refresh"]')
             if refresh_button:
@@ -241,13 +241,13 @@ class NewTempEmail:
                 else:
                     print(f"{Fore.GREEN}✅ 邮箱刷新成功{Style.RESET_ALL}")
                 return True
-            
+
             if self.translator:
                 print(f"{Fore.RED}❌ {self.translator.get('email.refresh_button_not_found')}{Style.RESET_ALL}")
             else:
                 print(f"{Fore.RED}❌ 未找到刷新按钮{Style.RESET_ALL}")
             return False
-            
+
         except Exception as e:
             if self.translator:
                 print(f"{Fore.RED}❌ {self.translator.get('email.refresh_error')}: {str(e)}{Style.RESET_ALL}")
@@ -274,7 +274,7 @@ class NewTempEmail:
             else:
                 print(f"{Fore.YELLOW}⚠️ 未找到验证邮件{Style.RESET_ALL}")
             return False
-            
+
         except Exception as e:
             if self.translator:
                 print(f"{Fore.RED}❌ {self.translator.get('email.verification_error')}: {str(e)}{Style.RESET_ALL}")
@@ -300,7 +300,7 @@ class NewTempEmail:
             else:
                 print(f"{Fore.YELLOW}⚠️ 未找到有效的验证码{Style.RESET_ALL}")
             return None
-            
+
         except Exception as e:
             if self.translator:
                 print(f"{Fore.RED}❌ {self.translator.get('email.verification_code_error')}: {str(e)}{Style.RESET_ALL}")
@@ -310,7 +310,7 @@ class NewTempEmail:
 
 def main(translator=None):
     temp_email = NewTempEmail(translator)
-    
+
     try:
         email = temp_email.create_email()
         if email:
@@ -318,7 +318,7 @@ def main(translator=None):
                 print(f"\n{Fore.CYAN}📧 {translator.get('email.address')}: {email}{Style.RESET_ALL}")
             else:
                 print(f"\n{Fore.CYAN}📧 临时邮箱地址: {email}{Style.RESET_ALL}")
-            
+
             # test refresh function
             while True:
                 if translator:
@@ -329,9 +329,9 @@ def main(translator=None):
                     temp_email.refresh_inbox()
                 elif choice == 'q':
                     break
-                    
+
     finally:
         temp_email.close()
 
 if __name__ == "__main__":
-    main() 
+    main()

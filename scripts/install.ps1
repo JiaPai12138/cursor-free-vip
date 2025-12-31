@@ -9,12 +9,12 @@ $Theme = @{
 
 # ASCII Logo
 $Logo = @"
-   ██████╗██╗   ██╗██████╗ ███████╗ ██████╗ ██████╗      ██████╗ ██████╗  ██████╗   
-  ██╔════╝██║   ██║██╔══██╗██╔════╝██╔═══██╗██╔══██╗     ██╔══██╗██╔══██╗██╔═══██╗  
-  ██║     ██║   ██║██████╔╝███████╗██║   ██║██████╔╝     ██████╔╝██████╔╝██║   ██║  
-  ██║     ██║   ██║██╔══██╗╚════██║██║   ██║██╔══██╗     ██╔═══╝ ██╔══██╗██║   ██║  
-  ╚██████╗╚██████╔╝██║  ██║███████║╚██████╔╝██║  ██║     ██║     ██║  ██║╚██████╔╝  
-   ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚═╝  ╚═╝     ╚═╝     ╚═╝  ╚═╝ ╚═════╝  
+   ██████╗██╗   ██╗██████╗ ███████╗ ██████╗ ██████╗      ██████╗ ██████╗  ██████╗
+  ██╔════╝██║   ██║██╔══██╗██╔════╝██╔═══██╗██╔══██╗     ██╔══██╗██╔══██╗██╔═══██╗
+  ██║     ██║   ██║██████╔╝███████╗██║   ██║██████╔╝     ██████╔╝██████╔╝██║   ██║
+  ██║     ██║   ██║██╔══██╗╚════██║██║   ██║██╔══██╗     ██╔═══╝ ██╔══██╗██║   ██║
+  ╚██████╗╚██████╔╝██║  ██║███████║╚██████╔╝██║  ██║     ██║     ██║  ██║╚██████╔╝
+   ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚═╝  ╚═╝     ╚═╝     ╚═╝  ╚═╝ ╚═════╝
 "@
 
 # Beautiful Output Function
@@ -31,7 +31,7 @@ function Write-Styled {
         $Theme.Warning { "[!]" }
         default        { "[*]" }
     }
-    
+
     $output = if ($Prefix) { "$symbol $Prefix :: $Message" } else { "$symbol $Message" }
     if ($NoNewline) {
         Write-Host $output -ForegroundColor $Color -NoNewline
@@ -43,7 +43,7 @@ function Write-Styled {
 # Get version number function
 function Get-LatestVersion {
     try {
-        $latestRelease = Invoke-RestMethod -Uri "https://api.github.com/repos/yeongpin/cursor-free-vip/releases/latest"
+        $latestRelease = Invoke-RestMethod -Uri "https://api.github.com/repos/jiapai12138/cursor-free-vip/releases/latest"
         return @{
             Version = $latestRelease.tag_name.TrimStart('v')
             Assets = $latestRelease.assets
@@ -59,7 +59,7 @@ Write-Host $Logo -ForegroundColor $Theme.Primary
 $releaseInfo = Get-LatestVersion
 $version = $releaseInfo.Version
 Write-Host "Version $version" -ForegroundColor $Theme.Info
-Write-Host "Created by YeongPin`n" -ForegroundColor $Theme.Info
+Write-Host "Created by jiapai12138`n" -ForegroundColor $Theme.Info
 
 # Set TLS 1.2
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
@@ -67,14 +67,14 @@ Write-Host "Created by YeongPin`n" -ForegroundColor $Theme.Info
 # Main installation function
 function Install-CursorFreeVIP {
     Write-Styled "Start downloading Cursor Free VIP" -Color $Theme.Primary -Prefix "Download"
-    
+
     try {
         # Get latest version
         Write-Styled "Checking latest version..." -Color $Theme.Primary -Prefix "Update"
         $releaseInfo = Get-LatestVersion
         $version = $releaseInfo.Version
         Write-Styled "Found latest version: $version" -Color $Theme.Success -Prefix "Version"
-        
+
         # Find corresponding resources
         $asset = $releaseInfo.Assets | Where-Object { $_.name -eq "CursorFreeVIP_${version}_windows.exe" }
         if (!$asset) {
@@ -85,27 +85,27 @@ function Install-CursorFreeVIP {
             }
             throw "Cannot find target file"
         }
-        
+
         # Check if Downloads folder already exists for the corresponding version
         $DownloadsPath = [Environment]::GetFolderPath("UserProfile") + "\Downloads"
         $downloadPath = Join-Path $DownloadsPath "CursorFreeVIP_${version}_windows.exe"
-        
+
         if (Test-Path $downloadPath) {
             Write-Styled "Found existing installation file" -Color $Theme.Success -Prefix "Found"
             Write-Styled "Location: $downloadPath" -Color $Theme.Info -Prefix "Location"
-            
+
             # Check if running with administrator privileges
             $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-            
+
             if (-not $isAdmin) {
                 Write-Styled "Requesting administrator privileges..." -Color $Theme.Warning -Prefix "Admin"
-                
+
                 # Create new process with administrator privileges
                 $startInfo = New-Object System.Diagnostics.ProcessStartInfo
                 $startInfo.FileName = $downloadPath
                 $startInfo.UseShellExecute = $true
                 $startInfo.Verb = "runas"
-                
+
                 try {
                     [System.Diagnostics.Process]::Start($startInfo)
                     Write-Styled "Program started with admin privileges" -Color $Theme.Success -Prefix "Launch"
@@ -117,14 +117,14 @@ function Install-CursorFreeVIP {
                     return
                 }
             }
-            
+
             # If already running with administrator privileges, start directly
             Start-Process $downloadPath
             return
         }
-        
+
         Write-Styled "No existing installation file found, starting download..." -Color $Theme.Primary -Prefix "Download"
-        
+
         # Create WebClient and add progress event
         $webClient = New-Object System.Net.WebClient
         $webClient.Headers.Add("User-Agent", "PowerShell Script")
@@ -142,20 +142,20 @@ function Install-CursorFreeVIP {
             $Global:downloadedBytes = $EventArgs.BytesReceived
             $Global:totalBytes = $EventArgs.TotalBytesToReceive
             $progress = [math]::Round(($Global:downloadedBytes / $Global:totalBytes) * 100, 1)
-            
+
             # Only update display when progress changes by more than 1%
             if ($progress -gt $Global:lastProgress + 1) {
                 $Global:lastProgress = $progress
                 $downloadedMB = [math]::Round($Global:downloadedBytes / 1MB, 2)
                 $totalMB = [math]::Round($Global:totalBytes / 1MB, 2)
-                
+
                 # Calculate download speed
                 $currentTime = Get-Date
                 $timeSpan = ($currentTime - $Global:lastTime).TotalSeconds
                 if ($timeSpan -gt 0) {
                     $bytesChange = $Global:downloadedBytes - $Global:lastBytes
                     $speed = $bytesChange / $timeSpan
-                    
+
                     # Choose appropriate unit based on speed
                     $speedDisplay = if ($speed -gt 1MB) {
                         "$([math]::Round($speed / 1MB, 2)) MB/s"
@@ -164,9 +164,9 @@ function Install-CursorFreeVIP {
                     } else {
                         "$([math]::Round($speed, 2)) B/s"
                     }
-                    
+
                     Write-Host "`rDownloading: $downloadedMB MB / $totalMB MB ($progress%) - $speedDisplay" -NoNewline -ForegroundColor Cyan
-                    
+
                     # Update last data
                     $Global:lastBytes = $Global:downloadedBytes
                     $Global:lastTime = $currentTime
@@ -188,10 +188,10 @@ function Install-CursorFreeVIP {
         while ($webClient.IsBusy) {
             Start-Sleep -Milliseconds 100
         }
-        
+
         Write-Styled "File location: $downloadPath" -Color $Theme.Info -Prefix "Location"
         Write-Styled "Starting program..." -Color $Theme.Primary -Prefix "Launch"
-        
+
         # Run program
         Start-Process $downloadPath
     }

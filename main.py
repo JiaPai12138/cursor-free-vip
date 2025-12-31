@@ -64,10 +64,10 @@ def run_as_admin():
     """Restart the current script with admin privileges (Windows only)."""
     if platform.system() != 'Windows':
         return False
-        
+
     try:
         args = [sys.executable] + sys.argv
-        
+
         # Request elevation via ShellExecute
         print(f"{Fore.YELLOW}{EMOJI['ADMIN']} Requesting administrator privileges...{Style.RESET_ALL}")
         ctypes.windll.shell32.ShellExecuteW(None, "runas", args[0], " ".join('"' + arg + '"' for arg in args[1:]), None, 1)
@@ -82,34 +82,34 @@ class Translator:
         self.current_language = self.detect_system_language()  # Use correct method name
         self.fallback_language = 'en'  # Fallback language if translation is missing
         self.load_translations()
-    
+
     def detect_system_language(self):
         """Detect system language and return corresponding language code"""
         try:
             system = platform.system()
-            
+
             if system == 'Windows':
                 return self._detect_windows_language()
             else:
                 return self._detect_unix_language()
-                
+
         except Exception as e:
             print(f"{Fore.YELLOW}{EMOJI['INFO']} Failed to detect system language: {e}{Style.RESET_ALL}")
             return 'en'
-    
+
     def _detect_windows_language(self):
         """Detect language on Windows systems"""
         try:
             # Ensure we are on Windows
             if platform.system() != 'Windows':
                 return 'en'
-                
+
             # Get keyboard layout
             user32 = ctypes.windll.user32
             hwnd = user32.GetForegroundWindow()
             threadid = user32.GetWindowThreadProcessId(hwnd, 0)
             layout_id = user32.GetKeyboardLayout(threadid) & 0xFFFF
-            
+
             # Map language ID to our language codes
             language_map = {
                 0x0409: 'en',      # English
@@ -120,11 +120,11 @@ class Translator:
                 0x0415: 'tr',      # Turkish
                 0x0402: 'bg',      # Bulgarian
             }
-            
+
             return language_map.get(layout_id, 'en')
         except:
             return self._detect_unix_language()
-    
+
     def _detect_unix_language(self):
         """Detect language on Unix-like systems (Linux, macOS)"""
         try:
@@ -132,9 +132,9 @@ class Translator:
             system_locale = locale.getdefaultlocale()[0]
             if not system_locale:
                 return 'en'
-            
+
             system_locale = system_locale.lower()
-            
+
             # Map locale to our language codes
             if system_locale.startswith('zh_tw') or system_locale.startswith('zh_hk'):
                 return 'zh_tw'
@@ -184,14 +184,14 @@ class Translator:
             return 'en'
         except:
             return 'en'
-    
+
     def load_translations(self):
         """Load all available translations"""
         try:
             locales_dir = os.path.join(os.path.dirname(__file__), 'locales')
             if hasattr(sys, '_MEIPASS'):
                 locales_dir = os.path.join(sys._MEIPASS, 'locales')
-            
+
             if not os.path.exists(locales_dir):
                 print(f"{Fore.RED}{EMOJI['ERROR']} Locales directory not found{Style.RESET_ALL}")
                 return
@@ -207,7 +207,7 @@ class Translator:
                         continue
         except Exception as e:
             print(f"{Fore.RED}{EMOJI['ERROR']} Failed to load translations: {e}{Style.RESET_ALL}")
-    
+
     def get(self, key, **kwargs):
         """Get translated text with fallback support"""
         try:
@@ -219,7 +219,7 @@ class Translator:
             return result.format(**kwargs) if kwargs else result
         except Exception:
             return key
-    
+
     def _get_translation(self, lang_code, key):
         """Get translation for a specific language"""
         try:
@@ -233,7 +233,7 @@ class Translator:
             return value
         except Exception:
             return key
-    
+
     def set_language(self, lang_code):
         """Set current language with validation"""
         if lang_code in self.translations:
@@ -257,19 +257,19 @@ def print_menu():
             cursor_acc_info.display_account_info(translator)
     except Exception as e:
         print(f"{Fore.YELLOW}{EMOJI['INFO']} {translator.get('menu.account_info_error', error=str(e))}{Style.RESET_ALL}")
-    
+
     print(f"\n{Fore.CYAN}{EMOJI['MENU']} {translator.get('menu.title')}:{Style.RESET_ALL}")
     if translator.current_language == 'zh_cn' or translator.current_language == 'zh_tw':
         print(f"{Fore.YELLOW}{'─' * 70}{Style.RESET_ALL}")
     else:
         print(f"{Fore.YELLOW}{'─' * 110}{Style.RESET_ALL}")
-    
+
     # Get terminal width
     try:
         terminal_width = shutil.get_terminal_size().columns
     except:
         terminal_width = 80  # Default width
-    
+
     # Define all menu items
     menu_items = {
         0: f"{Fore.GREEN}0{Style.RESET_ALL}. {EMOJI['ERROR']} {translator.get('menu.exit')}",
@@ -291,19 +291,19 @@ def print_menu():
         16: f"{Fore.GREEN}16{Style.RESET_ALL}. {EMOJI['UPDATE']}  {translator.get('menu.check_user_authorized', fallback='Check User Authorized')}",
         17: f"{Fore.GREEN}17{Style.RESET_ALL}. {EMOJI['UPDATE']}  {translator.get('menu.bypass_token_limit', fallback='Bypass Token Limit')}"
     }
-    
+
     # Automatically calculate the number of menu items in the left and right columns
     total_items = len(menu_items)
     left_column_count = (total_items + 1) // 2  # The number of options displayed on the left (rounded up)
-    
+
     # Build left and right columns of menus
     sorted_indices = sorted(menu_items.keys())
     left_menu = [menu_items[i] for i in sorted_indices[:left_column_count]]
     right_menu = [menu_items[i] for i in sorted_indices[left_column_count:]]
-    
+
     # Calculate the maximum display width of left menu items
     ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
-    
+
     def get_display_width(s):
         """Calculate the display width of a string, considering Chinese characters and emojis"""
         # Remove ANSI color codes
@@ -316,16 +316,16 @@ def print_menu():
             else:
                 width += 1
         return width
-    
+
     max_left_width = 0
     for item in left_menu:
         width = get_display_width(item)
         max_left_width = max(max_left_width, width)
-    
+
     # Set the starting position of right menu
     fixed_spacing = 4  # Fixed spacing
     right_start = max_left_width + fixed_spacing
-    
+
     # Calculate the number of spaces needed for right menu items
     spaces_list = []
     for i in range(len(left_menu)):
@@ -334,23 +334,23 @@ def print_menu():
             left_width = get_display_width(left_item)
             spaces = right_start - left_width
             spaces_list.append(spaces)
-    
+
     # Print menu items
     max_rows = max(len(left_menu), len(right_menu))
-    
+
     for i in range(max_rows):
         # Print left menu items
         if i < len(left_menu):
             left_item = left_menu[i]
             print(left_item, end='')
-            
+
             # Use pre-calculated spaces
             spaces = spaces_list[i]
         else:
             # If left side has no items, print only spaces
             spaces = right_start
             print('', end='')
-        
+
         # Print right menu items
         if i < len(right_menu):
             print(' ' * spaces + right_menu[i])
@@ -365,12 +365,12 @@ def select_language():
     """Language selection menu"""
     print(f"\n{Fore.CYAN}{EMOJI['LANG']} {translator.get('menu.select_language')}:{Style.RESET_ALL}")
     print(f"{Fore.YELLOW}{'─' * 40}{Style.RESET_ALL}")
-    
+
     languages = translator.get_available_languages()
     for i, lang in enumerate(languages):
         lang_name = translator.get(f"languages.{lang}")
         print(f"{Fore.GREEN}{i}{Style.RESET_ALL}. {lang_name}")
-    
+
     try:
         choice = input(f"\n{EMOJI['ARROW']} {Fore.CYAN}{translator.get('menu.input_choice', choices=f'0-{len(languages)-1}')}: {Style.RESET_ALL}")
         if choice.isdigit() and 0 <= int(choice) < len(languages):
@@ -387,37 +387,37 @@ def check_latest_version():
     """Check if current version matches the latest release version"""
     try:
         print(f"\n{Fore.CYAN}{EMOJI['UPDATE']} {translator.get('updater.checking')}{Style.RESET_ALL}")
-        
+
         # Get latest version from GitHub API with timeout and proper headers
         headers = {
             'Accept': 'application/vnd.github.v3+json',
             'User-Agent': 'CursorFreeVIP-Updater'
         }
         response = requests.get(
-            "https://api.github.com/repos/yeongpin/cursor-free-vip/releases/latest",
+            "https://api.github.com/repos/jiapai12138/cursor-free-vip/releases/latest",
             headers=headers,
             timeout=10
         )
-        
+
         # Check if rate limit exceeded
         if response.status_code == 403 and "rate limit exceeded" in response.text.lower():
             print(f"{Fore.YELLOW}{EMOJI['INFO']} {translator.get('updater.rate_limit_exceeded', fallback='GitHub API rate limit exceeded. Skipping update check.')}{Style.RESET_ALL}")
             return
-        
+
         # Check if response is successful
         if response.status_code != 200:
             raise Exception(f"GitHub API returned status code {response.status_code}")
-            
+
         response_data = response.json()
         if "tag_name" not in response_data:
             raise Exception("No version tag found in GitHub response")
-            
+
         latest_version = response_data["tag_name"].lstrip('v')
-        
+
         # Validate version format
         if not latest_version:
             raise Exception("Invalid version format received")
-        
+
         # Parse versions for proper comparison
         def parse_version(version_str):
             """Parse version string into tuple for proper comparison"""
@@ -426,10 +426,10 @@ def check_latest_version():
             except ValueError:
                 # Fallback to string comparison if parsing fails
                 return version_str
-                
+
         current_version_tuple = parse_version(version)
         latest_version_tuple = parse_version(latest_version)
-        
+
         # Compare versions properly
         is_newer_version_available = False
         if isinstance(current_version_tuple, tuple) and isinstance(latest_version_tuple, tuple):
@@ -437,47 +437,47 @@ def check_latest_version():
         else:
             # Fallback to string comparison
             is_newer_version_available = version != latest_version
-        
+
         if is_newer_version_available:
             print(f"\n{Fore.YELLOW}{EMOJI['INFO']} {translator.get('updater.new_version_available', current=version, latest=latest_version)}{Style.RESET_ALL}")
-            
+
             # get and show changelog
             try:
-                changelog_url = "https://raw.githubusercontent.com/yeongpin/cursor-free-vip/main/CHANGELOG.md"
+                changelog_url = "https://raw.githubusercontent.com/jiapai12138/cursor-free-vip/main/CHANGELOG.md"
                 changelog_response = requests.get(changelog_url, timeout=10)
-                
+
                 if changelog_response.status_code == 200:
                     changelog_content = changelog_response.text
-                    
+
                     # get latest version changelog
                     latest_version_pattern = f"## v{latest_version}"
                     changelog_sections = changelog_content.split("## v")
-                    
+
                     latest_changes = None
                     for section in changelog_sections:
                         if section.startswith(latest_version):
                             latest_changes = section
                             break
-                    
+
                     if latest_changes:
                         print(f"\n{Fore.CYAN}{'─' * 40}{Style.RESET_ALL}")
                         print(f"{Fore.CYAN}{translator.get('updater.changelog_title')}:{Style.RESET_ALL}")
-                        
+
                         # show changelog content (max 10 lines)
                         changes_lines = latest_changes.strip().split('\n')
                         for i, line in enumerate(changes_lines[1:11]):  # skip version number line, max 10 lines
                             if line.strip():
                                 print(f"{Fore.WHITE}{line.strip()}{Style.RESET_ALL}")
-                        
+
                         # if changelog more than 10 lines, show ellipsis
                         if len(changes_lines) > 11:
                             print(f"{Fore.WHITE}...{Style.RESET_ALL}")
-                        
+
                         print(f"{Fore.CYAN}{'─' * 40}{Style.RESET_ALL}")
             except Exception as changelog_error:
                 # get changelog failed
                 pass
-            
+
             # Ask user if they want to update
             while True:
                 choice = input(f"\n{EMOJI['ARROW']} {Fore.CYAN}{translator.get('updater.update_confirm', choices='Y/n')}: {Style.RESET_ALL}").lower()
@@ -488,35 +488,35 @@ def check_latest_version():
                     return
                 else:
                     print(f"{Fore.RED}{EMOJI['ERROR']} {translator.get('menu.invalid_choice')}{Style.RESET_ALL}")
-            
+
             try:
                 # Execute update command based on platform
                 if platform.system() == 'Windows':
-                    update_command = 'irm https://raw.githubusercontent.com/yeongpin/cursor-free-vip/main/scripts/install.ps1 | iex'
+                    update_command = 'irm https://raw.githubusercontent.com/jiapai12138/cursor-free-vip/main/scripts/install.ps1 | iex'
                     subprocess.run(['powershell', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', update_command], check=True)
                 else:
                     # For Linux/Mac, download and execute the install script
-                    install_script_url = 'https://raw.githubusercontent.com/yeongpin/cursor-free-vip/main/scripts/install.sh'
-                    
+                    install_script_url = 'https://raw.githubusercontent.com/jiapai12138/cursor-free-vip/main/scripts/install.sh'
+
                     # First verify the script exists
                     script_response = requests.get(install_script_url, timeout=5)
                     if script_response.status_code != 200:
                         raise Exception("Installation script not found")
-                        
+
                     # Save and execute the script
                     with open('install.sh', 'wb') as f:
                         f.write(script_response.content)
-                    
+
                     os.chmod('install.sh', 0o755)  # Make executable
                     subprocess.run(['./install.sh'], check=True)
-                    
+
                     # Clean up
                     if os.path.exists('install.sh'):
                         os.remove('install.sh')
-                
+
                 print(f"\n{Fore.GREEN}{EMOJI['SUCCESS']} {translator.get('updater.updating')}{Style.RESET_ALL}")
                 sys.exit(0)
-                
+
             except Exception as update_error:
                 print(f"{Fore.RED}{EMOJI['ERROR']} {translator.get('updater.update_failed', error=str(update_error))}{Style.RESET_ALL}")
                 print(f"{Fore.YELLOW}{EMOJI['INFO']} {translator.get('updater.manual_update_required')}{Style.RESET_ALL}")
@@ -527,12 +527,12 @@ def check_latest_version():
                 print(f"{Fore.GREEN}{EMOJI['SUCCESS']} {translator.get('updater.development_version', current=version, latest=latest_version)}{Style.RESET_ALL}")
             else:
                 print(f"{Fore.GREEN}{EMOJI['SUCCESS']} {translator.get('updater.up_to_date')}{Style.RESET_ALL}")
-            
+
     except requests.exceptions.RequestException as e:
         print(f"{Fore.RED}{EMOJI['ERROR']} {translator.get('updater.network_error', error=str(e))}{Style.RESET_ALL}")
         print(f"{Fore.YELLOW}{EMOJI['INFO']} {translator.get('updater.continue_anyway')}{Style.RESET_ALL}")
         return
-        
+
     except Exception as e:
         print(f"{Fore.RED}{EMOJI['ERROR']} {translator.get('updater.check_failed', error=str(e))}{Style.RESET_ALL}")
         print(f"{Fore.YELLOW}{EMOJI['INFO']} {translator.get('updater.continue_anyway')}{Style.RESET_ALL}")
@@ -546,9 +546,9 @@ def main():
             sys.exit(0)  # Exit after requesting admin privileges
         else:
             print(f"{Fore.YELLOW}{EMOJI['INFO']} {translator.get('menu.admin_required_continue')}{Style.RESET_ALL}")
-    
+
     print_logo()
-    
+
     # Initialize configuration
     config = get_config(translator)
     if not config:
@@ -559,7 +559,7 @@ def main():
     if config.getboolean('Utils', 'enabled_update_check'):
         check_latest_version()  # Add version check before showing menu
     print_menu()
-    
+
     while True:
         try:
             choice_num = 17

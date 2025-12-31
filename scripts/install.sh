@@ -12,12 +12,12 @@ NC='\033[0m' # No Color
 print_logo() {
     echo -e "${CYAN}"
     cat << "EOF"
-   ██████╗██╗   ██╗██████╗ ███████╗ ██████╗ ██████╗      ██████╗ ██████╗  ██████╗   
-  ██╔════╝██║   ██║██╔══██╗██╔════╝██╔═══██╗██╔══██╗     ██╔══██╗██╔══██╗██╔═══██╗  
-  ██║     ██║   ██║██████╔╝███████╗██║   ██║██████╔╝     ██████╔╝██████╔╝██║   ██║  
-  ██║     ██║   ██║██╔══██╗╚════██║██║   ██║██╔══██╗     ██╔═══╝ ██╔══██╗██║   ██║  
-  ╚██████╗╚██████╔╝██║  ██║███████║╚██████╔╝██║  ██║     ██║     ██║  ██║╚██████╔╝  
-   ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚═╝  ╚═╝     ╚═╝     ╚═╝  ╚═╝ ╚═════╝  
+   ██████╗██╗   ██╗██████╗ ███████╗ ██████╗ ██████╗      ██████╗ ██████╗  ██████╗
+  ██╔════╝██║   ██║██╔══██╗██╔════╝██╔═══██╗██╔══██╗     ██╔══██╗██╔══██╗██╔═══██╗
+  ██║     ██║   ██║██████╔╝███████╗██║   ██║██████╔╝     ██████╔╝██████╔╝██║   ██║
+  ██║     ██║   ██║██╔══██╗╚════██║██║   ██║██╔══██╗     ██╔═══╝ ██╔══██╗██║   ██║
+  ╚██████╗╚██████╔╝██║  ██║███████║╚██████╔╝██║  ██║     ██║     ██║  ██║╚██████╔╝
+   ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚═╝  ╚═╝     ╚═╝     ╚═╝  ╚═╝ ╚═════╝
 EOF
     echo -e "${NC}"
 }
@@ -39,11 +39,11 @@ get_downloads_dir() {
 # Get latest version
 get_latest_version() {
     echo -e "${CYAN}ℹ️ Checking latest version...${NC}"
-    latest_release=$(curl -s https://api.github.com/repos/yeongpin/cursor-free-vip/releases/latest) || {
+    latest_release=$(curl -s https://api.github.com/repos/jiapai12138/cursor-free-vip/releases/latest) || {
         echo -e "${RED}❌ Cannot get latest version information${NC}"
         exit 1
     }
-    
+
     VERSION=$(echo "$latest_release" | grep -o '"tag_name": ".*"' | cut -d'"' -f4 | tr -d 'v')
     if [ -z "$VERSION" ]; then
         echo -e "${RED}❌ Failed to parse version from GitHub API response:\n${latest_release}"
@@ -87,13 +87,13 @@ install_cursor_free_vip() {
     local downloads_dir=$(get_downloads_dir)
     local binary_name="CursorFreeVIP_${VERSION}_${OS}"
     local binary_path="${downloads_dir}/${binary_name}"
-    local download_url="https://github.com/yeongpin/cursor-free-vip/releases/download/v${VERSION}/${binary_name}"
-    
+    local download_url="https://github.com/jiapai12138/cursor-free-vip/releases/download/v${VERSION}/${binary_name}"
+
     # Check if file already exists
     if [ -f "${binary_path}" ]; then
         echo -e "${GREEN}✅ Found existing installation file${NC}"
         echo -e "${CYAN}ℹ️ Location: ${binary_path}${NC}"
-        
+
         # Check if running as root
         if [ "$EUID" -ne 0 ]; then
             echo -e "${YELLOW}⚠️ Requesting administrator privileges...${NC}"
@@ -114,25 +114,25 @@ install_cursor_free_vip() {
         fi
         return
     fi
-    
+
     echo -e "${CYAN}ℹ️ No existing installation file found, starting download...${NC}"
     echo -e "${CYAN}ℹ️ Downloading to ${downloads_dir}...${NC}"
     echo -e "${CYAN}ℹ️ Download link: ${download_url}${NC}"
-    
+
     # Check if file exists
     if curl --output /dev/null --silent --head --fail "$download_url"; then
         echo -e "${GREEN}✅ File exists, starting download...${NC}"
     else
         echo -e "${RED}❌ Download link does not exist: ${download_url}${NC}"
         echo -e "${YELLOW}⚠️ Trying without architecture...${NC}"
-        
+
         # Try without architecture
         if [[ "$OS" == "mac_arm64" || "$OS" == "mac_intel" ]]; then
             OS="mac"
             binary_name="CursorFreeVIP_${VERSION}_${OS}"
-            download_url="https://github.com/yeongpin/cursor-free-vip/releases/download/v${VERSION}/${binary_name}"
+            download_url="https://github.com/jiapai12138/cursor-free-vip/releases/download/v${VERSION}/${binary_name}"
             echo -e "${CYAN}ℹ️ New download link: ${download_url}${NC}"
-            
+
             if ! curl --output /dev/null --silent --head --fail "$download_url"; then
                 echo -e "${RED}❌ New download link does not exist${NC}"
                 exit 1
@@ -140,9 +140,9 @@ install_cursor_free_vip() {
         elif [[ "$OS" == "linux_x64" || "$OS" == "linux_arm64" ]]; then
             OS="linux"
             binary_name="CursorFreeVIP_${VERSION}_${OS}"
-            download_url="https://github.com/yeongpin/cursor-free-vip/releases/download/v${VERSION}/${binary_name}"
+            download_url="https://github.com/jiapai12138/cursor-free-vip/releases/download/v${VERSION}/${binary_name}"
             echo -e "${CYAN}ℹ️ New download link: ${download_url}${NC}"
-            
+
             if ! curl --output /dev/null --silent --head --fail "$download_url"; then
                 echo -e "${RED}❌ New download link does not exist${NC}"
                 exit 1
@@ -151,17 +151,17 @@ install_cursor_free_vip() {
             exit 1
         fi
     fi
-    
+
     # Download file
     if ! curl -L -o "${binary_path}" "$download_url"; then
         echo -e "${RED}❌ Download failed${NC}"
         exit 1
     fi
-    
+
     # Check downloaded file size
     local file_size=$(stat -f%z "${binary_path}" 2>/dev/null || stat -c%s "${binary_path}" 2>/dev/null)
     echo -e "${CYAN}ℹ️ Downloaded file size: ${file_size} bytes${NC}"
-    
+
     # If file is too small, it might be an error message
     if [ "$file_size" -lt 1000 ]; then
         echo -e "${YELLOW}⚠️ Warning: Downloaded file is too small, possibly not a valid executable file${NC}"
@@ -171,13 +171,13 @@ install_cursor_free_vip() {
         echo -e "${RED}❌ Download failed, please check version and operating system${NC}"
         exit 1
     fi
-    
+
     echo -e "${CYAN}ℹ️ Setting executable permissions...${NC}"
     if chmod +x "${binary_path}"; then
         echo -e "${GREEN}✅ Installation completed!${NC}"
         echo -e "${CYAN}ℹ️ Program downloaded to: ${binary_path}${NC}"
         echo -e "${CYAN}ℹ️ Starting program...${NC}"
-        
+
         # Run program directly
         "${binary_path}"
     else
@@ -195,4 +195,4 @@ main() {
 }
 
 # Run main program
-main 
+main

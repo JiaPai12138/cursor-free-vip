@@ -30,17 +30,17 @@ def center_multiline_text(text, handle_chinese=False):
     width = get_terminal_width()
     lines = text.split('\n')
     centered_lines = []
-    
+
     for line in lines:
         # calculate actual display width (remove ANSI color codes)
         clean_line = line
         for color in [Fore.CYAN, Fore.YELLOW, Fore.GREEN, Fore.RED, Fore.BLUE, Style.RESET_ALL]:
             clean_line = clean_line.replace(color, '')
-        
+
         # remove all ANSI escape sequences to get the actual length
         ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
         clean_line = ansi_escape.sub('', clean_line)
-        
+
         # calculate display width
         if handle_chinese:
             # consider Chinese characters occupying two positions
@@ -53,26 +53,26 @@ def center_multiline_text(text, handle_chinese=False):
         else:
             # not handling Chinese characters
             display_width = len(clean_line)
-        
+
         # calculate the number of spaces to add
         padding = max(0, (width - display_width) // 2)
         centered_lines.append(' ' * padding + line)
-    
+
     return '\n'.join(centered_lines)
 
 # original LOGO text
 LOGO_TEXT = f"""{Fore.CYAN}
-   ██████╗██╗   ██╗██████╗ ███████╗ ██████╗ ██████╗      ██████╗ ██████╗  ██████╗   
-  ██╔════╝██║   ██║██╔══██╗██╔════╝██╔═══██╗██╔══██╗     ██╔══██╗██╔══██╗██╔═══██╗  
-  ██║     ██║   ██║██████╔╝███████╗██║   ██║██████╔╝     ██████╔╝██████╔╝██║   ██║  
-  ██║     ██║   ██║██╔══██╗╚════██║██║   ██║██╔══██╗     ██╔═══╝ ██╔══██╗██║   ██║  
-  ╚██████╗╚██████╔╝██║  ██║███████║╚██████╔╝██║  ██║     ██║     ██║  ██║╚██████╔╝  
-   ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚═╝  ╚═╝     ╚═╝     ╚═╝  ╚═╝ ╚═════╝  
+   ██████╗██╗   ██╗██████╗ ███████╗ ██████╗ ██████╗      ██████╗ ██████╗  ██████╗
+  ██╔════╝██║   ██║██╔══██╗██╔════╝██╔═══██╗██╔══██╗     ██╔══██╗██╔══██╗██╔═══██╗
+  ██║     ██║   ██║██████╔╝███████╗██║   ██║██████╔╝     ██████╔╝██████╔╝██║   ██║
+  ██║     ██║   ██║██╔══██╗╚════██║██║   ██║██╔══██╗     ██╔═══╝ ██╔══██╗██║   ██║
+  ╚██████╗╚██████╔╝██║  ██║███████║╚██████╔╝██║  ██║     ██║     ██║  ██║╚██████╔╝
+   ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚═╝  ╚═╝     ╚═╝     ╚═╝  ╚═╝ ╚═════╝
 {Style.RESET_ALL}"""
 
 DESCRIPTION_TEXT = f"""{Fore.YELLOW}
 Pro Version Activator v{version}{Fore.GREEN}
-Author: Pin Studios (yeongpin)"""
+Author: Pin Studios (jiapai12138)"""
 
 CONTRIBUTORS_TEXT = f"""{Fore.BLUE}
 Contributors:
@@ -82,7 +82,7 @@ bingoohuang  mALIk-sHAHId  MFaiqKhan  httpmerak
 muhammedfurkan plamkatawe Lucaszmv
 """
 OTHER_INFO_TEXT = f"""{Fore.YELLOW}
-Github: https://github.com/yeongpin/cursor-free-vip{Fore.RED}
+Github: https://github.com/jiapai12138/cursor-free-vip{Fore.RED}
 Press 8 to change language | 按下 8 键切换语言{Style.RESET_ALL}"""
 
 # center display LOGO and DESCRIPTION
