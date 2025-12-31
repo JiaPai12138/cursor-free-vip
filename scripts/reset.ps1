@@ -85,7 +85,7 @@ if ($Elevated) {
 
 # 顯示 Logo
 Write-Host $Logo -ForegroundColor $Theme.Primary
-Write-Host "Created by jiapai12138`n" -ForegroundColor $Theme.Info
+Write-Host "Created by yeongpin`n" -ForegroundColor $Theme.Info
 
 # 設置 TLS 1.2
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
